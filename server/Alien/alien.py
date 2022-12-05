@@ -46,3 +46,22 @@ class Alien:
 
         self.log(f"Could not schedule task for beacon {beacon_id}: not found.", logging.WARNING)
         return False
+
+    def parse_dns_request(self, qname):
+        data = qname.split(".")[0]
+        response = False
+        responding_beacon = None
+        for beacon in self.beacons:
+            response = beacon.process_request(data)
+            if response is not False:
+                responding_beacon = beacon
+                break
+
+        if response is False:
+            ip_address = self.parse_firstalive_request(data)
+        else:
+            ip_address = response.ip_address
+            result = response.beacon_result
+            if result is not None:
+                self.handle_beacon_result(responding_beacon, result)
+        return ip_address
