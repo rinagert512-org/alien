@@ -19,5 +19,10 @@ namespace Alien
 				})
 			);
 		}
+
+		public static void MakeDelay(int seconds)
+		{
+			Thread.Sleep(seconds);
+		}
 	}
 }
