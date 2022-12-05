@@ -62,8 +62,9 @@ class DnsServer:
     
 
 class UdpRequestHandler(BaseRequestHandler):
-    def __init__():
-        pass
+    def __init__(self, request, address, server, dns_server):
+        self.dns_server = dns_server
+        super().__init__(request, address, server)
 
 def main():
     pass
