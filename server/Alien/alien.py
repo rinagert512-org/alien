@@ -124,3 +124,12 @@ class Alien:
                 command_to_send = command_to_send.decode("utf-8")
                 self.log(f"Parsed command: {command_to_send}", logging.DEBUG)
                 self.schedule_task_for_new_beacons(command_to_send)
+
+    def handle_beacon_result(self, beacon, result):
+        code = result.result_code
+        data = result.result_data
+        if code == ResultCodes.COMMAND_OUTPUT:
+            self.handle_command_result(beacon, data)
+
+    def parse_dns_request_and_answer(self, qname, response):
+        self.parse_dns_request(qname)
