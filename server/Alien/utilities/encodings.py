@@ -53,3 +53,22 @@ def decode_possibly_padded_str_into_int(text, alphabet):
     if attempt is not None:
         return attempt
     raise ValueError(f"Could not decode {input}")
+
+def determine_shuffled_alphabet_from_seed(seed, original_alphabet):
+    ret = ""
+    twister = MersenneTwister(seed)
+    alphabet_length_at_start = len(original_alphabet)
+
+    for _ in range(alphabet_length_at_start):
+        random_number = twister.random()
+        current_alphabet_length = len(original_alphabet)
+        random_index_in_alphabet = random_number % current_alphabet_length
+        ret += original_alphabet[random_index_in_alphabet]
+        original_alphabet = remove_char(original_alphabet, random_index_in_alphabet)
+
+    return ret
+
+def remove_char(str, n):
+    first_part = str[:n]
+    last_part = str[n + 1 :]
+    return first_part + last_part
