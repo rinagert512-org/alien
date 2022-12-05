@@ -44,3 +44,36 @@ MESSAGETYPE_FOR_BEACON_STATE = {
     BeaconStates.pending_commandresult: MessageTypes.send,
     BeaconStates.receiving_commandresult: MessageTypes.send,
 }
+
+class AlienBeacon:
+    def __init__(self, id, counter):
+        self.id = id
+        self.counter = counter
+        self.alphabet = determine_shuffled_alphabet_from_seed(self.counter, CHARACTER_SET)
+        self.command_sent = ""
+        self.buffer_size = 0
+
+        self.command_queue = []
+        self.result = b""
+        self.state = BeaconStates.firstalive_done
+
+    def log(self, message, loglevel=logging.INFO):
+        logger.log(level=loglevel, msg=f"[BEACON {self.id}] {message}")
+
+    def get_next_command(self, remove_from_queue):
+        if len(self.command_queue) <= 0:
+            raise ValueError("Could not fetch the next command because no further commands were scheduled!")
+        next_command = self.command_queue[0]
+        if remove_from_queue:
+            self.command_queue.pop(0)
+        return next_command
+
+    def encode_expected_prefix(self):
+        expected_message_type = MESSAGETYPE_FOR_BEACON_STATE[self.state]
+        if expected_message_type is None:
+            return encode_int_into_str(self.id, self.alphabet)
+        return encode_int_into_str(expected_message_type, self.alphabet) + encode_int_into_str(self.id, self.alphabet)
+
+    def update_counter(self):
+        self.counter += 1
+        self.alphabet = determine_shuffled_alphabet_from_seed(self.counter, CHARACTER_SET)
