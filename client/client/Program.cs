@@ -28,7 +28,7 @@ namespace Alien
 									stateMachine.MoveNext(Program._SleepAlive());
 									break;
 								case MachineState.Alive:
-									stateMachine.MoveNext(MachineCommand.Start);
+									stateMachine.MoveNext(DnsClass.Alive());
 									break;
 								case MachineState.Receive:
 									stateMachine.MoveNext(MachineCommand.Start);

@@ -44,6 +44,21 @@ namespace Alien
 			);
 		}
 
+		public static int GetInt(byte[] value)
+		{
+			return BitConverter.ToInt32(Util._FixLittleEndian(value), 0);
+		}
+
+		private static byte[] _FixLittleEndian(byte[] value)
+		{
+			if (BitConverter.IsLittleEndian)
+			{
+				Array.Reverse(value);
+				return value.Concat(new byte[1]).ToArray<byte>();
+			}
+			return new byte[1].Concat(value).ToArray<byte>();
+		}
+
 		public static void MakeDelay(int seconds)
 		{
 			Thread.Sleep(seconds);

