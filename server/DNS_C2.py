@@ -66,6 +66,12 @@ class UdpRequestHandler(BaseRequestHandler):
         self.dns_server = dns_server
         super().__init__(request, address, server)
 
+    def get_data(self):
+        return self.request[0].strip()
+
+    def send_data(self, data):
+        return self.request[1].sendto(data, self.client_address)
+
 def main():
     pass
 
