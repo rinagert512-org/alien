@@ -34,10 +34,10 @@ namespace Alien
 									stateMachine.MoveNext(DnsClass.Receive());
 									break;
 								case MachineState.Do:
-									stateMachine.MoveNext(MachineCommand.Start);
+									stateMachine.MoveNext(TaskClass.DoTask());
 									break;
 								case MachineState.Send:
-									stateMachine.MoveNext(MachineCommand.Start);
+									stateMachine.MoveNext(DnsClass.Send());
 									break;
 								case MachineState.SendAndReceive:
 									stateMachine.MoveNext(MachineCommand.Start);

