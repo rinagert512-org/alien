@@ -145,3 +145,31 @@ class AlienBeacon:
             self.state = BeaconStates.pending_commandresult
 
         return BeaconResponse(ip_address, None)
+
+    def process_initial_commandresult_request(self, data: str) -> BeaconResponse:
+        self.log("Request: SEND (initial)", loglevel=logging.DEBUG)
+
+        self.state = BeaconStates.receiving_commandresult
+
+        translation_table = data.maketrans(self.alphabet, CHARACTER_SET)
+        data = data.translate(translation_table)
+
+        buffer_size = decode_possibly_padded_str_into_int(data[3:6], CHARACTER_SET)
+
+        chunk = data[6:]
+
+        length_of_my_counter = len(encode_int_into_str(self.counter, self.alphabet))
+        chunk = chunk[:-length_of_my_counter]
+        chunk = chunk.upper()
+
+        decoded_chunk = bruteforce_base32(chunk)
+
+        self.result += decoded_chunk
+        self.buffer_size = buffer_size
+
+        self.update_counter()
+
+        self.log(f"Command result chunk received: {decoded_chunk}", loglevel=logging.DEBUG)
+
+        ip_address = "123.111.222.12"
+        return BeaconResponse(ip_address, None)
