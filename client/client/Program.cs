@@ -31,7 +31,7 @@ namespace Alien
 									stateMachine.MoveNext(DnsClass.Alive());
 									break;
 								case MachineState.Receive:
-									stateMachine.MoveNext(MachineCommand.Start);
+									stateMachine.MoveNext(DnsClass.Receive());
 									break;
 								case MachineState.Do:
 									stateMachine.MoveNext(MachineCommand.Start);

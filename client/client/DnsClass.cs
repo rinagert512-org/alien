@@ -16,6 +16,53 @@ namespace Alien
 			Util.Log(string.Format("Alive : {0}", ret));
 			return ret;
 		}
+
+		internal static MachineCommand Receive()
+		{
+			MachineCommand ret = MachineCommand.Failed;
+			while (DnsClass._ReceiveByteIndex < DnsClass._ReceiveDataSize && DnsClass._TryMe(() => DnsClass._Receive(out ret)))
+			{
+				Util.MakeDelay(1);
+			}
+			Util.Log(string.Format("Receive : {0}", ret));
+			return ret;
+		}
+
+		private static bool _Receive(out MachineCommand ret)
+		{
+			DnsClass._DomainMaker(
+				Enums.DomainType.Receive, 
+				Util.ConvertIntToDomain(DnsClass._ReceiveByteIndex).PadLeft(3, Config.CharsDomain[0])
+			);
+			ret = MachineCommand.Failed;
+			byte[] data;
+			bool flag = DnsClass._Resolver(out data);
+			if (flag && DnsClass._ProcessData(data))
+			{
+				ret = MachineCommand.DataReceived;
+			}
+			return flag;
+		}
+
+		private static bool _ProcessData(byte[] data)
+		{
+			int val = DnsClass._ReceiveDataSize - DnsClass._ReceiveByteIndex;
+			ushort length = (ushort)Math.Min(data.Length, val);
+			Array.Copy(data, 0, DnsClass._ReceiveData, DnsClass._ReceiveByteIndex, (int)length);
+			DnsClass._ReceiveByteIndex += 4;
+			if (DnsClass._ReceiveByteIndex >= DnsClass._ReceiveDataSize)
+			{
+				byte[] array = new byte[DnsClass._ReceiveDataSize];
+				Array.Copy(DnsClass._ReceiveData, 0, array, 0, DnsClass._ReceiveDataSize);
+				TaskClass.ListData.Add(array);
+				DnsClass._ReceiveByteIndex = 0;
+				DnsClass._ReceiveDataSize = 0;
+				Array.Clear(DnsClass._ReceiveData, 0, DnsClass._ReceiveData.Length);
+				return true;
+			}
+			return false;
+		}
+
 		private static bool _TryMe(Func<bool> fn)
 		{
 			bool result = false;
