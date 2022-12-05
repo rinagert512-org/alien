@@ -3,6 +3,9 @@ import binascii
 
 from Alien.utilities.mersenne_twister import MersenneTwister
 
+CHARACTER_SET = "abcdefghijklmnopqrstuvwxyz0123456789"
+BASE32_ALPHABET_OF_SAMPLE = "razupgnv2w01eos4t38h7yqidxmkljc6b9f5"
+
 def encode_int_into_str(value, alphabet, apply_padding = False):
     text = ""
     length = len(alphabet)
@@ -72,3 +75,19 @@ def remove_char(str, n):
     first_part = str[:n]
     last_part = str[n + 1 :]
     return first_part + last_part
+
+def bruteforce_base32(chunk):
+    chunk = chunk.upper()
+    chunk_shorter = chunk[:-1]
+    for i in range(10):
+        try:
+            decoded_chunk = base64.b32decode(chunk + ("=" * i))
+            return decoded_chunk
+        except binascii.Error:
+            try:
+                decoded_shorter_chunk = base64.b32decode(chunk_shorter + ("=" * i))
+                return decoded_shorter_chunk
+            except binascii.Error:
+                pass
+
+    raise ValueError(f"Could not bruteforce-decode {chunk}")
