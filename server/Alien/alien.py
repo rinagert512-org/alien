@@ -91,3 +91,36 @@ class Alien:
         response += str(beacon_id)
 
         return response
+
+    def prepare_for_replay(self, dns_pairs):
+        unique_pairs = []
+        for new_pair in dns_pairs:
+            exists_already = False
+            for existing_pair in unique_pairs:
+                if existing_pair.rdata == new_pair.rdata:
+                    exists_already = True
+            if not exists_already:
+                unique_pairs.append(new_pair)
+
+        self.log("Parsing sent commands out of replay input...")
+        assumption_command_size_announcement_contains = ".0.0."
+        for index, pair in enumerate(unique_pairs):
+            if pair.rdata is None:
+                continue
+            if assumption_command_size_announcement_contains in pair.rdata:
+                command_size = int.from_bytes(socket.inet_aton(pair.rdata)[1:], "big")
+                number_of_packets_needed = math.ceil(command_size / 4)
+
+                pairs_containing_command = unique_pairs[index + 1 : index + 1 + number_of_packets_needed]
+                command_to_send = b""
+                for command_pair in pairs_containing_command:
+                    chars = command_pair.rdata.split(".")
+                    for char in chars:
+                        if len(command_to_send) < command_size:
+                            command_to_send += int(char).to_bytes(1, "little")
+
+                command_to_send = command_to_send[1:]
+
+                command_to_send = command_to_send.decode("utf-8")
+                self.log(f"Parsed command: {command_to_send}", logging.DEBUG)
+                self.schedule_task_for_new_beacons(command_to_send)
