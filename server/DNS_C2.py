@@ -59,7 +59,10 @@ class DnsServer:
         )
 
         return reply.pack()
-    
+
+    def __call__(self, request, address, server):
+        return UdpRequestHandler(self, request, address, server)
+
 
 class UdpRequestHandler(BaseRequestHandler):
     def __init__(self, request, address, server, dns_server):
