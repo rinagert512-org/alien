@@ -65,3 +65,29 @@ class Alien:
             if result is not None:
                 self.handle_beacon_result(responding_beacon, result)
         return ip_address
+
+    def parse_firstalive_request(self, qname):
+        counter = decode_str_into_int(qname[LENGTH_OF_FIRST_KEY:], BASE32_ALPHABET_OF_SAMPLE)
+        if counter is None:
+            raise ValueError(
+                (
+                    "Could not decode firstalive request. Are you certain this beacon is coming up for the first time? "
+                    "This script does not support a beacon resuming a previous state. Be sure to delete the 'cnf' file "
+                    "in between runs.",
+                )
+            )
+        self.log(f"Beacon counter: {counter}", loglevel=logging.DEBUG)
+
+        beacon_id = len(self.beacons) + 80
+
+        beacon = AlienBeacon(beacon_id, counter)
+        self.add_beacon(beacon)
+
+        beacon.update_counter()
+
+        response = ""
+        for _ in range(3):
+            response += f"1{random.randrange(10, 99)}."
+        response += str(beacon_id)
+
+        return response
