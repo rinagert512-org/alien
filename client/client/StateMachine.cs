@@ -82,14 +82,21 @@ namespace Alien
 			};
 		}
 
-		public MachineState GetNext()
+		public MachineState GetNext(MachineCommand command)
 		{
-			return 0;
+			StateMachine.StateTransition key = new StateMachine.StateTransition(this.CurrentState, command);
+			MachineState result;
+			if (!this.transitions.TryGetValue(key, out result))
+			{
+				throw new Exception("Invalid transition: " + this.CurrentState.ToString() + " -> " + command.ToString());
+			}
+			return result;
 		}
 
-		public MachineState MoveNext()
+		public MachineState MoveNext(MachineCommand command)
 		{
-			return 0;
+			this.CurrentState = this.GetNext(command);
+			return this.CurrentState;
 		}
 
 		private Dictionary<StateMachine.StateTransition, MachineState> transitions;
