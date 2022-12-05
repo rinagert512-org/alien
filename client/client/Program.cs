@@ -22,28 +22,28 @@ namespace Alien
 							switch (stateMachine.CurrentState)
 							{
 								case MachineState.Begin:
-									stateMachine.MoveNext();
+									stateMachine.MoveNext(MachineCommand.Start);
 									break;
 								case MachineState.Sleep:
-									stateMachine.MoveNext();
+									stateMachine.MoveNext(Program._SleepAlive());
 									break;
 								case MachineState.Alive:
-									stateMachine.MoveNext();
+									stateMachine.MoveNext(DnsClass.Alive());
 									break;
 								case MachineState.Receive:
-									stateMachine.MoveNext();
+									stateMachine.MoveNext(DnsClass.Receive());
 									break;
 								case MachineState.Do:
-									stateMachine.MoveNext();
+									stateMachine.MoveNext(MachineCommand.Start);
 									break;
 								case MachineState.Send:
-									stateMachine.MoveNext();
+									stateMachine.MoveNext(MachineCommand.Start);
 									break;
 								case MachineState.SendAndReceive:
-									stateMachine.MoveNext();
+									stateMachine.MoveNext(MachineCommand.Start);
 									break;
 								case MachineState.SecondSleep:
-									stateMachine.MoveNext();
+									stateMachine.MoveNext(Program._SleepSecond());
 									break;
 							}
 						}
@@ -54,6 +54,20 @@ namespace Alien
 					}
 				}
 			}
+		}
+
+		private static MachineCommand _SleepAlive()
+		{
+			Util.MakeDelay(2);
+			Util.Log("SleepAlive : Start");
+			return MachineCommand.Start;
+		}
+
+		private static MachineCommand _SleepSecond()
+		{
+			Util.MakeDelay(1);
+			Util.Log("SleepSecond : Start");
+			return MachineCommand.Start;
 		}
 	}
 }
