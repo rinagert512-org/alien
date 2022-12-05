@@ -34,3 +34,22 @@ def decode_str_into_int(text, alphabet):
         value += 1
 
     return None
+
+def decode_possibly_padded_str_into_int(text, alphabet):
+    without_padding = decode_str_into_int(text, alphabet)
+    if without_padding is not None:
+        return without_padding
+
+    if not text.startswith(alphabet[0]):
+        raise ValueError(f"Could not decode {text}")
+
+    padding_once = input[1:]
+    attempt = decode_str_into_int(padding_once, alphabet)
+    if attempt is not None:
+        return attempt
+
+    padding_twice = input[2:]
+    attempt = decode_str_into_int(padding_twice, alphabet)
+    if attempt is not None:
+        return attempt
+    raise ValueError(f"Could not decode {input}")
