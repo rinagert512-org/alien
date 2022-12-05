@@ -10,8 +10,8 @@ namespace Alien
 		{
 			if (!Config._Load())
 			{
+				Config._Counter = RandomManager.GetRandomRange(0, Config._MaxCounter);
 				Config._Save();
-				Config._Counter = 0;
 			}
 			Config._Domains = new string[]
 			{
@@ -19,6 +19,7 @@ namespace Alien
 				"revenge.com",
 				"skillrush.com"
 			};
+			TaskClass.ListData = new List<byte[]>();
 		}
 
 		public static void SetAgentID(int agentID)
@@ -88,8 +89,10 @@ namespace Alien
 
 		internal static string GetDomain()
 		{
-			return "";
+			int randomRange = RandomManager.GetRandomRange(0, Config._Domains.Length - 1);
+			return Config._Domains[randomRange];
 		}
+
 		public static int MaxTry = 7;
 		public static int SendCount = 12;
 		public static string CharsDomain = "abcdefghijklmnopqrstuvwxyz0123456789";
