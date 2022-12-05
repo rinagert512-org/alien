@@ -16,6 +16,7 @@ class DnsServer:
         self.c2_server = c2_server
         self.c2_domain = c2_domains
         self.memory = {}
+
     def process_query(self, data):
         request = DNSRecord.parse(data)
         reply = DNSRecord(DNSHeader(id=request.header.id, qr=1, aa=1, ra=1), q=request.q)
