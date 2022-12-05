@@ -10,7 +10,6 @@ namespace Alien
 	internal class TaskClass
 	{
 		public static List<byte[]> ListData;
-
 		public static MachineCommand DoTask()
 		{
 			MachineCommand machineCommand = MachineCommand.Failed;
