@@ -77,3 +77,22 @@ class AlienBeacon:
     def update_counter(self):
         self.counter += 1
         self.alphabet = determine_shuffled_alphabet_from_seed(self.counter, CHARACTER_SET)
+
+    def process_request(self, data):
+        currently_expected_prefix = self.encode_expected_prefix()
+
+        if not data.startswith(currently_expected_prefix):
+            return False
+
+        remaining_data = data[len(currently_expected_prefix) :]
+
+        if self.state == BeaconStates.firstalive_done:
+            return self.process_payloadsize_request(remaining_data)
+        if self.state == BeaconStates.payloadsize_sent:
+            return self.process_command_receive_request(remaining_data)
+        if self.state == BeaconStates.pending_commandresult:
+            return self.process_initial_commandresult_request(remaining_data)
+        if self.state == BeaconStates.receiving_commandresult:
+            return self.process_continued_commandresult_request(remaining_data)
+
+        raise ValueError(f"Unexpected data stream {data}")
