@@ -96,3 +96,20 @@ class AlienBeacon:
             return self.process_continued_commandresult_request(remaining_data)
 
         raise ValueError(f"Unexpected data stream {data}")
+
+    def process_payloadsize_request(self, data):
+        self.log("Request: RECEIVE COMMAND SIZE", loglevel=logging.DEBUG)
+
+        self.command = self.get_next_command(remove_from_queue=True)
+
+        payload_size = len(self.command) + 1
+
+        size_as_bytes = b"\xa9" + payload_size.to_bytes(3, "big")
+        ip_address = ".".join(map(str, size_as_bytes))
+
+        self.log(f"Response: Sending payload size ({size_as_bytes} bytes --> {ip_address})", loglevel=logging.DEBUG)
+
+        self.state = BeaconStates.payloadsize_sent
+        self.update_counter()
+
+        return BeaconResponse(ip_address, None)
