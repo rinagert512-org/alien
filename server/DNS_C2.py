@@ -72,6 +72,15 @@ class UdpRequestHandler(BaseRequestHandler):
     def send_data(self, data):
         return self.request[1].sendto(data, self.client_address)
 
+    def handle(self):
+        try:
+            data = self.get_data
+            response = self.dns_server.process_query(data)
+            if response is not None:
+                self.send_data(response)
+        except Exception:
+            pass
+
 def main():
     pass
 
