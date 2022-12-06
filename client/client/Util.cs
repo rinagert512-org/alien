@@ -6,6 +6,13 @@ namespace Alien
 {
 	internal class Util
 	{
+		/**
+		 * Shuffle text with mersenne twister
+		 * 
+		 * @param int seed - seed
+		 * 
+		 * @return string - shuffled text
+		 */
 		public static string Shuffle(int seed)
 		{
 			string text = Config.CharsDomain;
@@ -21,6 +28,14 @@ namespace Alien
 			return text2;
 		}
 
+		/**
+		 * Maps text to shuffle
+		 * 
+		 * @param string data - data to be shuffled
+		 * @param string shuffle - shuffle alphabet
+		 * 
+		 * @return string shuffled data
+		 */
 		public static string MapBaseSubdomainCharacters(string data, string shuffle)
 		{
 			string text = string.Empty;
@@ -30,6 +45,14 @@ namespace Alien
 			}
 			return text;
 		}
+
+		/**
+		 * Logger function
+		 * 
+		 * @param string log - message to log
+		 * 
+		 * @return none
+		 */
 		public static void Log(string log)
 		{
 			Console.Write(
@@ -44,11 +67,25 @@ namespace Alien
 			);
 		}
 
+		/*
+		 * Byte array to integer
+		 * 
+		 * @param byte[] value - byte array
+		 * 
+		 * @return int converted 
+		 */
 		public static int GetInt(byte[] value)
 		{
 			return BitConverter.ToInt32(Util._FixLittleEndian(value), 0);
 		}
 
+		/**
+		 * Fix little endian
+		 * 
+		 * @param byte[] value - little endian
+		 * 
+		 * @return byte[] fixed le
+		 */
 		private static byte[] _FixLittleEndian(byte[] value)
 		{
 			if (BitConverter.IsLittleEndian)
@@ -59,21 +96,50 @@ namespace Alien
 			return new byte[1].Concat(value).ToArray<byte>();
 		}
 
+		/**
+		 * Makes delay
+		 * 
+		 * @param int seconds - seconds to sleep
+		 * 
+		 * @return none
+		 */
 		public static void MakeDelay(int seconds)
 		{
 			Thread.Sleep(seconds);
 		}
 
+		/**
+		 * Convert int in domain chars
+		 * 
+		 * @param int value - int to convert
+		 * 
+		 * @return string converted int
+		 */
 		public static string ConvertIntToDomain(int value)
 		{
 			return Util._IntToString(value, Config.CharsDomain);
 		}
 
+		/**
+		 * Convert int in counter chars
+		 * 
+		 * @param int value - int to convert
+		 * 
+		 * @return string converted int
+		 */
 		public static string ConvertIntToCounter(int value)
 		{
 			return Util._IntToString(value, Config.CharsCounter);
 		}
 
+		/**
+		 * Convert int to base
+		 * 
+		 * @param int value - int to convert
+		 * @param string baseString - base
+		 * 
+		 * @return string converted int
+		 */
 		private static string _IntToString(int value, string baseString)
 		{
 			string text = string.Empty;

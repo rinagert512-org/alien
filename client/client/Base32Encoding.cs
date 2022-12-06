@@ -4,6 +4,13 @@ namespace Alien
 {
 	public class Base32Encoding
 	{
+		/**
+		 * Encode to base32
+		 * 
+		 * @param byte[] input - data to encode
+		 * 
+		 * @return string base32 encoded
+		 */
 		public static string GetByteString(byte[] input)
 		{
 			if (input == null || input.Length == 0)
@@ -35,6 +42,13 @@ namespace Alien
 			return new string(array).Replace("\0", "");
 		}
 
+		/**
+		 * Convert int from 1 to 32 to char
+		 * 
+		 * @param byte b - num
+		 * 
+		 * @return char character
+		 */
 		private static char _ValueToChar(byte b)
 		{
 			if (b < 26)
