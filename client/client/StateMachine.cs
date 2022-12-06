@@ -82,13 +82,6 @@ namespace Alien
 			};
 		}
 
-		/**
-		 * Get next state
-		 * 
-		 * @param MachineCommand command - command to move
-		 * 
-		 * @return MachineState - new state
-		 */
 		public MachineState GetNext(MachineCommand command)
 		{
 			StateMachine.StateTransition key = new StateMachine.StateTransition(this.CurrentState, command);
@@ -100,13 +93,6 @@ namespace Alien
 			return result;
 		}
 
-		/**
-		 * Move to next state
-		 * 
-		 * @param MachineCommand command - command to move
-		 * 
-		 * @return MachineState - new state
-		 */
 		public MachineState MoveNext(MachineCommand command)
 		{
 			this.CurrentState = this.GetNext(command);

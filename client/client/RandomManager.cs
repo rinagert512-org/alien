@@ -4,14 +4,6 @@ namespace Alien
 {
 	public static class RandomManager
 	{
-		/**
-		 * Random number in certain range
-		 * 
-		 * @param int min - min in range
-		 * @param int max - max in range
-		 * 
-		 * @return int random integer
-		 */
 		public static int GetRandomRange(int min, int max)
 		{
 			if (min > max)

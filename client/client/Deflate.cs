@@ -6,13 +6,6 @@ namespace Alien
 {
 	internal class Deflate
 	{
-		/**
-		 * Deflate compression to send data
-		 * 
-		 * @param byte[] data - data to compress
-		 * 
-		 * @return byte[] compressed data
-		 */
 		public static byte[] Compress(byte[] data)
 		{
 			if (data == null || data.Length < 1)

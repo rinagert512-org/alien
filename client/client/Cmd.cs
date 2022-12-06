@@ -5,13 +5,6 @@ namespace Alien
 {
     class Cmd
     {
-		/** 
-		 * Clean up cmd output
-		 * 
-		 * @param string result - cmd output
-		 * 
-		 * @return string cleaned output
-		 */
 		public static string ShrinkCmdResult(string result)
 		{
 			string result2 = result;
@@ -51,26 +44,11 @@ namespace Alien
 			return result2;
 		}
 
-		/*
-		 * Execute command
-		 * 
-		 * @param string cmd - command to execute
-		 * 
-		 * @return string result of execution
-		 */
 		public static string ExecCmd(string cmd)
         {
             return Cmd.Exec("cmd", "/c " + cmd + " && exit");
         }
 
-		/*
-		 * Low level function to get result of command execution
-		 * 
-		 * @param string fileName - filename to run
-		 * @param string arguments - arguments to pass to running file
-		 * 
-		 * @return string result of execution
-		 */
         public static string Exec(string fileName, string arguments)
         {
             ProcessStartInfo processStartInfo = new ProcessStartInfo(fileName, arguments);
