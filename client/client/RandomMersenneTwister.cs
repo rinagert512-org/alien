@@ -4,6 +4,11 @@ namespace Alien
 {
 	internal class RandomMersenneTwister
 	{
+		/**
+		 * Constructor of RandomMersenneTwister generator
+		 * 
+		 * @param uint seed - seed to start randomization
+		 */
 		public RandomMersenneTwister(uint seed = 5489U)
 		{
 			this.state = new uint[624];
@@ -25,6 +30,11 @@ namespace Alien
 			}
 		}
 
+		/**
+		 * Twist
+		 * 
+		 * @return none
+		 */
 		private void twist()
 		{
 			for (uint num = 0U; num < 624U; num += 1U)
@@ -40,6 +50,11 @@ namespace Alien
 			this.index = 0U;
 		}
 
+		/**
+		 * Returns random number
+		 * 
+		 * @return uint random number
+		 */
 		public uint GetRandomNumber()
 		{
 			if (this.index >= 624U)
@@ -55,6 +70,14 @@ namespace Alien
 			return this.toInt32((long)((ulong)num));
 		}
 
+		/**
+		 * Random number in certain range
+		 * 
+		 * @param int min - min border
+		 * @param int max - max border
+		 * 
+		 * @return int random integer
+		 */
 		public int GetRandomRange(int min, int max)
 		{
 			int num = max - min;
@@ -62,6 +85,13 @@ namespace Alien
 			return (int)((long)min + (long)((ulong)randomNumber % (ulong)((long)num)));
 		}
 
+		/**
+		 * To 32bit integer
+		 * 
+		 * @param long number - number to convert
+		 * 
+		 * @return uint 32bit integer
+		 */
 		private uint toInt32(long number)
 		{
 			unchecked {
